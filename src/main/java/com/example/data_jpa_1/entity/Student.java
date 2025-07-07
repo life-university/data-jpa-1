@@ -36,6 +36,10 @@ public class Student {
         department.getStudents().add(this);
     }
 
+    public Student(String username) {
+        this.username = username;
+    }
+
     public Student(String username, int age, Department department) {
         this.username = username;
         this.age = age;
