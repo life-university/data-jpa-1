@@ -10,4 +10,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m left join m.team")
     List<Member> findMemberFetchJoin();
 
+    @Query(name = "select * from member where username = ?", nativeQuery = true)
+    Member findNativeByUsername(String name);
+
 }

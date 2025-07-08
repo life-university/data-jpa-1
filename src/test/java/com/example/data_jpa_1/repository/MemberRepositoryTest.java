@@ -106,4 +106,21 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    void nativeQueryTest() {
+        // given
+        memberRepository.save(new Member("member1"));
+        memberRepository.save(new Member("member2"));
+        memberRepository.save(new Member("member3"));
+
+        em.flush();
+        em.clear();
+
+        // when
+        Member member = memberRepository.findNativeByUsername("member1");
+
+        // then
+        assertThat(member.getUsername()).isEqualTo("member1");
+    }
+
 }
