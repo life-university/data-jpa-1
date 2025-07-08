@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.data_jpa_1.dto.StudentDTO;
 import com.example.data_jpa_1.entity.Department;
+import com.example.data_jpa_1.entity.Member;
 import com.example.data_jpa_1.entity.Student;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -401,4 +402,29 @@ class StudentRepositoryTest {
         assertThat(students.size()).isEqualTo(2);
         students.forEach(System.out::println);
     }
+
+    @Test
+    void eventBaseEntity() throws InterruptedException {
+        // given
+        Student student = new Student("student");
+        studentRepository.save(student);
+
+        Thread.sleep(1000); // 1 second delay.
+
+        student.setUsername("student2");
+
+        em.flush();
+        em.clear();
+
+        // when
+        Student findStudent = studentRepository.findById(student.getId()).orElseThrow();
+
+        // then
+        System.out.println("findStudent.getCreatedAt() = " + findStudent.getCreatedAt());
+        System.out.println("findStudent.getLastModifiedAt() = " + findStudent.getLastModifiedAt());
+        //
+        System.out.println("findStudent.getCreatedBy() = " + findStudent.getCreatedBy());
+        System.out.println("findStudent.getLastModifiedBy() = " + findStudent.getLastModifiedBy());
+    }
+
 }

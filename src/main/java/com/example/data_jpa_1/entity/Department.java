@@ -18,7 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString(of = {"id", "name"})
-public class Department {
+public class Department extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
