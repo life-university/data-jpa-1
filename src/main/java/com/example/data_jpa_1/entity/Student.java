@@ -40,6 +40,11 @@ public class Student {
         this.username = username;
     }
 
+    public Student(String username, int age) {
+        this.username = username;
+        this.age = age;
+    }
+
     public Student(String username, int age, Department department) {
         this.username = username;
         this.age = age;

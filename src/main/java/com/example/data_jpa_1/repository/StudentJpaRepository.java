@@ -38,4 +38,13 @@ public class StudentJpaRepository {
     public long count() {
         return em.createQuery("select count(s) from Student s", Long.class).getSingleResult();
     }
+
+    // 학생 이름과 나이로 조회
+    public List<Student> findByUsernameAndAgeGreaterThan(String username, int age) {
+        return em.createQuery("select s from Student s where s.username = :username and s.age > :age", Student.class)
+                 .setParameter("username", username)
+                 .setParameter("age", age)
+                 .getResultList();
+    }
+
 }

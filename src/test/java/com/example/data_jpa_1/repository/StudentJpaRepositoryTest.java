@@ -54,4 +54,21 @@ class StudentJpaRepositoryTest {
         long deletedCount = studentJpaRepository.count();
         assertThat(deletedCount).isEqualTo(0);
     }
+
+    @Test
+    void findByUsernameAndAgeGreaterThan() {
+        // given
+        Student student1 = new Student("student1", 10);
+        Student student2 = new Student("student2", 20);
+        studentJpaRepository.save(student1);
+        studentJpaRepository.save(student2);
+
+        // when
+        List<Student> findStudents = studentJpaRepository.findByUsernameAndAgeGreaterThan("student2", 18);
+
+        // then
+        assertThat(findStudents.size()).isEqualTo(1);
+        assertThat(findStudents.get(0).getUsername()).isEqualTo("student2");
+        assertThat(findStudents.get(0).getAge()).isEqualTo(20);
+    }
 }
