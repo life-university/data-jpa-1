@@ -386,4 +386,19 @@ class StudentRepositoryTest {
         System.out.println("findStudent = " + findStudent);
     }
 
+    @Test
+    void callCustomMethod() {
+        // given
+        Student student1 = new Student("student1", 10);
+        Student student2 = new Student("student2", 20);
+        studentRepository.save(student1);
+        studentRepository.save(student2);
+
+        // when
+        List<Student> students = studentRepository.findStudentCustom();
+
+        // then
+        assertThat(students.size()).isEqualTo(2);
+        students.forEach(System.out::println);
+    }
 }
