@@ -71,4 +71,18 @@ class StudentJpaRepositoryTest {
         assertThat(findStudents.get(0).getUsername()).isEqualTo("student2");
         assertThat(findStudents.get(0).getAge()).isEqualTo(20);
     }
+
+    @Test
+    void bulkUpdate() {
+        // given
+        for (int i = 0; i < 10; i++) {
+            studentJpaRepository.save(new Student("student_" + i, 10 + i));
+        }
+
+        // when
+        int resultCount = studentJpaRepository.bulkAgePlus(15); //
+
+        // then
+        assertThat(resultCount).isEqualTo(5);
+    }
 }

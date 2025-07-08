@@ -27,7 +27,7 @@ public class Student {
     private String username;
     private int age;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
 
@@ -51,5 +51,10 @@ public class Student {
         if (department != null) {
             changeDepartment(department);
         }
+    }
+
+    // JPA Hint 를 위해 추가
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

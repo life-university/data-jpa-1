@@ -42,9 +42,15 @@ public class StudentJpaRepository {
     // 학생 이름과 나이로 조회
     public List<Student> findByUsernameAndAgeGreaterThan(String username, int age) {
         return em.createQuery("select s from Student s where s.username = :username and s.age > :age", Student.class)
-                 .setParameter("username", username)
-                 .setParameter("age", age)
-                 .getResultList();
+            .setParameter("username", username)
+            .setParameter("age", age)
+            .getResultList();
+    }
+
+    public int bulkAgePlus(int age) {
+        return em.createQuery("update Student s set s.age = s.age + 1 where s.age >= :age")
+            .setParameter("age", age)
+            .executeUpdate();
     }
 
 }

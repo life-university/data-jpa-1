@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.example.data_jpa_1.dto.StudentDTO;
 import com.example.data_jpa_1.entity.Department;
 import com.example.data_jpa_1.entity.Student;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -21,7 +23,9 @@ class StudentRepositoryTest {
     @Autowired
     StudentRepository studentRepository;
     @Autowired
-    private DepartmentRepository departmentRepository;
+    DepartmentRepository departmentRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     void testStudent() {
@@ -226,6 +230,160 @@ class StudentRepositoryTest {
         Assertions.assertThatThrownBy(() -> {
             studentRepository.findOptionalByUsername("student3");
         }).isInstanceOf(IncorrectResultSizeDataAccessException.class);
+    }
+
+    @Test
+    void bulkUpdate() {
+        // given
+        for (int i = 0; i < 10; i++) {
+            studentRepository.save(new Student("student_" + i, 10 + i));
+        }
+
+        // when
+        int resultCount = studentRepository.bulkAgePlus(15);
+
+        // then
+        assertThat(resultCount).isEqualTo(5);
+    }
+
+    @Test
+    void bulkUpdateCaution() {
+        // given
+        for (int i = 0; i < 10; i++) {
+            studentRepository.save(new Student("student_" + i, 10 + i));
+        }
+
+        // when
+        int resultCount = studentRepository.bulkAgePlus(15);
+
+        // caution
+        Student student9 = studentRepository.findStudentByUsername("student_9");
+        System.out.println("student9 = " + student9);
+
+        // then
+        assertThat(resultCount).isEqualTo(5);
+    }
+
+    @Test
+    void bulkUpdateCautionSolution() {
+        // given
+        for (int i = 0; i < 10; i++) {
+            studentRepository.save(new Student("student_" + i, 10 + i));
+        }
+
+        // when
+        int resultCount = studentRepository.bulkAgePlus(15);
+
+        em.flush();
+        em.clear();
+
+        // caution
+        Student student9 = studentRepository.findStudentByUsername("student_9");
+        System.out.println("student9 = " + student9);
+
+        // then
+        assertThat(resultCount).isEqualTo(5);
+    }
+
+    @Test
+    void bulkClearUpdate() {
+        // given
+        for (int i = 0; i < 10; i++) {
+            studentRepository.save(new Student("student_" + i, 10 + i));
+        }
+
+        // when
+        int resultCount = studentRepository.bulkClearAgePlus(15);
+
+        Student student9 = studentRepository.findStudentByUsername("student_9");
+        System.out.println("student9 = " + student9);
+
+        // then
+        assertThat(resultCount).isEqualTo(5);
+    }
+
+    @Test
+    void findStudentLazy() {
+        // given
+        // student1 -> departmentA
+        // student2 -> departmentB
+        Department departmentA = new Department("departmentA");
+        Department departmentB = new Department("departmentB");
+        departmentRepository.save(departmentA);
+        departmentRepository.save(departmentB);
+
+        Student student1 = new Student("student1", 10, departmentA);
+        Student student2 = new Student("student2", 10, departmentB);
+        studentRepository.save(student1);
+        studentRepository.save(student2);
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<Student> all = studentRepository.findAll();
+        for (Student student : all) {
+            System.out.println("student = " + student.getUsername());
+            System.out.println("student department = " + student.getDepartment().getClass() + " // " + student.getDepartment().getName());
+        }
+
+        System.out.println("==========================");
+        List<Student> graphAll = studentRepository.findGraphAll();
+        graphAll.forEach(System.out::println);
+
+        System.out.println("==========================");
+        List<Student> graphByUsername = studentRepository.findGraphByUsername("student2");
+        graphByUsername.forEach(System.out::println);
+    }
+
+    @Test
+    void queryHintReadOnlyProblem() {
+        // given
+        Student student1 = new Student("student1", 10);
+        studentRepository.save(student1);
+        em.flush();
+        em.clear();
+
+        // when
+        Student findStudent = studentRepository.findById(student1.getId()).orElseThrow();
+        findStudent.setUsername("student2");
+
+        em.flush();
+        em.clear();
+
+        Student findStudent2 = studentRepository.findById(student1.getId()).orElseThrow();
+        assertThat(findStudent2.getUsername()).isEqualTo("student2");
+    }
+
+    @Test
+    void queryHintReadOnly() {
+        // given
+        Student student1 = new Student("student1", 10);
+        studentRepository.save(student1);
+        em.flush();
+        em.clear();
+
+        // when
+        Student findStudent = studentRepository.findReadOnlyById(student1.getId()).orElseThrow();
+        findStudent.setUsername("student2");
+
+        em.flush();
+        em.clear();
+
+        Student findStudent2 = studentRepository.findById(student1.getId()).orElseThrow();
+        assertThat(findStudent2.getUsername()).isEqualTo("student1");
+    }
+
+    @Test
+    void queryLock() {
+        // given
+        Student student1 = new Student("student1", 10);
+        studentRepository.save(student1);
+
+        // when
+        Student findStudent = studentRepository.findLockByUsername(student1.getUsername()).orElseThrow();
+
+        System.out.println("findStudent = " + findStudent);
     }
 
 }
