@@ -18,7 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @AllArgsConstructor
 @ToString(of = {"id", "username"})
-public class Member {
+public class Member extends JpaBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +26,16 @@ public class Member {
     private Long id;
     private String username;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
+    //    @ManyToOne(fetch = FetchType.EAGER)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    public Member(String username) {
+        this.username = username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
